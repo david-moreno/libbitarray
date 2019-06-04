@@ -3,7 +3,7 @@
 #include <limits.h>
 #include "bitarray.h"
 
-#define DEBUG
+//#define DEBUG
 
 typedef struct ba_t {
 	long nbits;
@@ -144,6 +144,7 @@ int ba_set_max (long max)
 {
 	if (max <= 0) return 0;
 	ba_alloc_max = max;
+	return max;
 }
 
 int ba_get_error (void)
@@ -169,7 +170,6 @@ int ba_dump (ba_t *obj)
 {
 	long i;
 
-	//printf("\n");
 	for (i=0; i < obj->bytes; i++) {
 		printf("  %li: ", i);
 		bin(obj->b[i]);
