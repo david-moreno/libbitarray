@@ -83,9 +83,8 @@ int ba_get (ba_t *obj, long bit)
 		return -1;
 	}
 
-	byte = bit / CHAR_BIT;
-	if (r = bit % CHAR_BIT) byte++;
-
+	byte = (bit < (CHAR_BIT - 1)) ? 0 : bit / CHAR_BIT;
+	r = (bit < (CHAR_BIT - 1)) ? bit : bit % CHAR_BIT;
 	mask <<= r;
 	return (obj->b[byte] & mask) ? 1 : 0;
 }
@@ -105,9 +104,8 @@ int ba_set (ba_t *obj, long bit)
 		return -1;
 	}
 
-	byte = bit / CHAR_BIT;
-	if (r = bit % CHAR_BIT) byte++;
-
+	byte = (bit < (CHAR_BIT - 1)) ? 0 : bit / CHAR_BIT;
+	r = (bit < (CHAR_BIT - 1)) ? bit : bit % CHAR_BIT;
 	mask <<= r;
 	obj->b[byte] |= mask;
 
@@ -129,9 +127,8 @@ int ba_unset (ba_t *obj, long bit)
 		return -1;
 	}
 
-	byte = bit / CHAR_BIT;
-	if (r = bit % CHAR_BIT) byte++;
-
+	byte = (bit < (CHAR_BIT - 1)) ? 0 : bit / CHAR_BIT;
+	r = (bit < (CHAR_BIT - 1)) ? bit : bit % CHAR_BIT;
 	mask <<= r;
 	obj->b[byte] ^= mask;
 
@@ -172,11 +169,12 @@ int ba_dump (ba_t *obj)
 {
 	long i;
 
-	printf("\n");
+	//printf("\n");
 	for (i=0; i < obj->bytes; i++) {
-		printf("  ");
+		printf("  %li: ", i);
 		bin(obj->b[i]);
 		putchar('\n');
 	}
+	putchar('\n');
 }
 #endif	//DEBUG
