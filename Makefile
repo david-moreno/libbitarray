@@ -13,7 +13,7 @@ INC=bitarray.h
 $(LIBNAME): $(SRC)
 	$(CC) -o $(OBJ) -c $(CFLAGS) $<
 	$(CC) -shared -o $(LIBNAME) $(OBJ)
-	strip $(LIBNAME)
+	strip --strip-unneeded $(LIBNAME)
 
 install:
 	install $(LIBNAME) $(LIBDIR)
