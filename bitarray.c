@@ -1,9 +1,12 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include "bitarray.h"
 
 //#define DEBUG
+
+#ifdef DEBUG
+#include <stdio.h>
+#endif
 
 typedef struct ba_t {
 	long nbits;
@@ -11,8 +14,8 @@ typedef struct ba_t {
 	unsigned char *b;
 } ba_t;
 
-/* Default maximum number of bytes to allocate: 10 MB */
-static long ba_alloc_max = 10485760;
+/* Default limit number of bytes to allocate: 10 MB */
+static long ba_alloc_limit = 10485760;
 
 /* Last error produced */
 static int ba_error = BA_ERR_NONE;
@@ -26,7 +29,7 @@ ba_t *ba_new (long bits)
 		ba_error = BA_ERR_MIN;
 		return NULL;
 	}
-	if (bits > ba_alloc_max) {
+	if (bits > ba_alloc_limit) {
 		ba_error = BA_ERR_MAX;
 		return NULL;
 	}
@@ -135,16 +138,16 @@ int ba_unset (ba_t *obj, long bit)
 	return bit;
 }
 
-long ba_get_max (void)
+long ba_get_limit (void)
 {
-	return ba_alloc_max;
+	return ba_alloc_limit;
 }
 
-int ba_set_max (long max)
+int ba_set_limit (long limit)
 {
-	if (max <= 0) return 0;
-	ba_alloc_max = max;
-	return max;
+	if (limit <= 0) return 0;
+	ba_alloc_limit = limit;
+	return limit;
 }
 
 int ba_get_error (void)
@@ -152,11 +155,47 @@ int ba_get_error (void)
 	return ba_error;
 }
 
+long ba_get_min (ba_t *obj)
+{
+	long min = 0;
+	unsigned int byte, bit;
+	unsigned char mask;
+
+	for (byte=0; byte < obj->bytes; byte++) {
+		mask=1;
+		for (bit=0; bit < CHAR_BIT; bit++) {
+			if (obj->b[byte] & mask) return min;
+			mask <<= 1;
+			min++;
+		}
+	}
+
+	return 0;
+}
+
+long ba_get_max (ba_t *obj)
+{
+	long max = (obj->bytes * CHAR_BIT) - 1;
+	unsigned int byte, bit;
+	unsigned char mask;
+
+	for (byte=obj->bytes - 1; byte >= 0; byte--) {
+		mask = 1 << (CHAR_BIT - 1);
+		for (bit=0; bit < CHAR_BIT; bit++) {
+			if (obj->b[byte] & mask) return max;
+			mask >>= 1;
+			max--;
+		}
+	}
+
+	return 0;
+}
+
 /* ========================================================================== *
  * DEBUG
  * ========================================================================== */
 #ifdef DEBUG
-static bin (unsigned char b)
+static void bin (unsigned char b)
 {
 	int i;
 	unsigned char mask = 1 << (CHAR_BIT - 1);
@@ -166,7 +205,8 @@ static bin (unsigned char b)
 		mask >>= 1;
 	}
 }
-int ba_dump (ba_t *obj)
+
+void ba_dump (ba_t *obj)
 {
 	long i;
 
