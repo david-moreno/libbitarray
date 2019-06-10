@@ -24,6 +24,7 @@ int ba_set_limit (long limit);
 int ba_get_error (void);
 long ba_get_min (ba_t *obj);
 long ba_get_max (ba_t *obj);
+long ba_get_next (ba_t *obj, long from);
 #ifdef DEBUG
 void ba_dump (ba_t *obj);
 #endif

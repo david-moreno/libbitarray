@@ -191,6 +191,45 @@ long ba_get_max (ba_t *obj)
 	return 0;
 }
 
+long ba_get_next (ba_t *obj, long from)
+{
+	unsigned char pos, mask;
+	unsigned int cur, byte;
+	long bit=from + 1;
+
+	if (from < 0) {
+		ba_error = BA_ERR_MIN;
+		return -1;
+	}
+
+	if (from >= obj->nbits) {
+		ba_error = BA_ERR_MAX;
+		return -1;
+	}
+
+	cur = from / CHAR_BIT;
+	pos = (from < CHAR_BIT) ? from : from % CHAR_BIT;
+	mask = 1 << ++pos;
+
+	for (byte=cur; byte < obj->bytes; byte++) {
+		if (obj->b[byte] == 0) {
+			bit += CHAR_BIT;
+			continue;
+		}
+
+		while (mask) {
+			if (bit >= obj->nbits) break;
+			if (obj->b[byte] & mask) return bit;
+			mask <<= 1;
+			bit++;
+		}
+
+		mask = 1;
+	}
+
+	return from;
+}
+
 /* ========================================================================== *
  * DEBUG
  * ========================================================================== */
