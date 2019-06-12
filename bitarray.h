@@ -41,6 +41,8 @@ int ba_get_error (void);
 long ba_get_min (ba_t *obj);
 long ba_get_max (ba_t *obj);
 long ba_get_next (ba_t *obj, long from);
+void ba_set_all (ba_t *obj);
+void ba_unset_all (ba_t *obj);
 #ifdef DEBUG
 void ba_dump (ba_t *obj);
 #endif

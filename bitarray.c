@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
 #include "bitarray.h"
 
@@ -286,6 +287,20 @@ long ba_get_next (ba_t *obj, long from)
 	}
 
 	return from;
+}
+
+void ba_set_all (ba_t *obj)
+{
+	int b = ~0;
+
+	memset(obj->b, b, obj->bytes);
+}
+
+void ba_unset_all (ba_t *obj)
+{
+	int b = 0;
+
+	memset(obj->b, b, obj->bytes);
 }
 
 /* ========================================================================== *
