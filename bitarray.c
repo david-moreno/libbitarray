@@ -162,8 +162,15 @@ long ba_get_min (ba_t *obj)
 	unsigned char mask;
 
 	for (byte=0; byte < obj->bytes; byte++) {
+		if (obj->b[byte] == 0) {
+			min += CHAR_BIT;
+			continue;
+		}
+
 		mask=1;
+
 		for (bit=0; bit < CHAR_BIT; bit++) {
+			if (min >= obj->nbits) return 0;
 			if (obj->b[byte] & mask) return min;
 			mask <<= 1;
 			min++;
@@ -175,16 +182,50 @@ long ba_get_min (ba_t *obj)
 
 long ba_get_max (ba_t *obj)
 {
-	long max = (obj->bytes * CHAR_BIT) - 1;
-	unsigned int byte, bit;
-	unsigned char mask;
+	unsigned char mask = 1;
+	unsigned int last, bit, byte, r, b;
 
-	for (byte=obj->bytes - 1; byte >= 0; byte--) {
+	last = obj->nbits - 1;
+
+	if (obj->bytes == 1) {
+		if (obj->b[0] == 0) return 0;
+		mask <<= last;
+
+		for (bit=last; bit >= 0; bit--) {
+			if (obj->b[0] & mask) return bit;
+			mask >>= 1;
+		}
+	}
+
+	r = obj->nbits % CHAR_BIT;
+	byte = obj->bytes - 1;
+
+	if (r) {
+		mask <<= r - 1;
+		for (bit=r; bit > 0; bit--) {
+			if (obj->b[byte] == 0) {
+				last -= r;
+				break;
+			}
+
+			if (obj->b[byte] & mask) return last;
+			mask >>= 1;
+			last--;
+		}
+		byte--;
+	}
+
+	for (b=byte; b >= 0; b--) {
+		if (obj->b[b] == 0) {
+			last -= CHAR_BIT;
+			continue;
+		}
+
 		mask = 1 << (CHAR_BIT - 1);
 		for (bit=0; bit < CHAR_BIT; bit++) {
-			if (obj->b[byte] & mask) return max;
+			if (obj->b[b] & mask) return last;
 			mask >>= 1;
-			max--;
+			last--;
 		}
 	}
 

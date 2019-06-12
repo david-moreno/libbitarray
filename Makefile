@@ -20,7 +20,7 @@ install:
 	cd $(LIBDIR); ln -s $(LIBNAME) $(SYMNAME)
 	install $(INC) $(INCDIR)
 
-uninstall:
+uninstall remove:
 	rm -vf $(LIBDIR)/$(LIBNAME)
 	rm -vf $(LIBDIR)/$(SYMNAME)
 	rm -vf $(INCDIR)/$(INC)
